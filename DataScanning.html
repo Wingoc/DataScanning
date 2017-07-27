@@ -1,0 +1,321 @@
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <title>Data Scanning</title>
+    <script type="text/javascript" src="./js/jszip.js"></script>
+    <script type="text/javascript" src="./js/xlsx.min.js"></script>
+    <script type="text/javascript" src="./js/FileSaver.js"></script>
+    <link rel="shortcut icon" href="./ico/scan.ico">
+    <style media="screen">
+    body {
+      background-color: #fff;
+    }
+    .content {
+      text-align: center;
+    }
+    table {
+      text-align: center;
+      border:none;
+    }
+    table tr,td,th {
+      border: solid 1px #000;
+    }
+    table tr th {
+      height: 25px;
+      background-color: #999999;
+    }
+    table tr {
+      height: 20px;
+      padding: 0px;
+    }
+    table tr:first-child th:first-child {
+        border-top-left-radius: 5px;
+        width: 45px;
+    }
+    table tr:first-child th:last-child {
+        border-top-right-radius: 5px;
+    }
+    table tr:last-child td:first-child {
+        border-bottom-left-radius: 5px;
+    }
+    table tr:last-child td:last-child {
+        border-bottom-right-radius: 5px;
+    }
+    input {
+      width: 300px;
+      border: solid 0px #fff;
+      height: 20px;
+      margin-top: 0px;
+      margin-bottom: 2px;
+      text-align: center;
+    }
+    #btn, #btn2, #btn3 {
+      border-radius: 10px;
+      border: solid 1px #000;
+      width: 300px;
+      height: 30px;
+      margin-top: 8px;
+      margin-bottom: 3px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #6495ED;
+      margin-bottom: 2px;
+    }
+    #btn2 {
+      width: 200px;
+      margin-left: 0px;
+    }
+    #btn3 {
+      width: 100px;
+      margin-left: 0px;
+    }
+    #btn:hover {
+      background-color: green;
+      cursor:pointer;
+    }
+    #btn2:hover {
+      background-color: green;
+      cursor:pointer;
+    }
+    #btn3:hover {
+      background-color: green;
+      cursor:pointer;
+    }
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <span>
+        <button type="button" id="btn">导出表格数据到Excel</button>
+        <button type="button" id="btn2">恢复历史数据</button>
+        <button type="button" id="btn3" onclick="alert('抱歉！暂无内容！')">帮 助</button>
+      </span>
+      <div class="tableborder">
+      <table id="myTable" align="center" cellpadding="0" cellspacing="0">
+        <tr>
+          <th>序 号</th>
+          <th>条码A</th>
+          <th>条码B</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td><input id="0" type="text" /></td>
+          <td><input id="1" type="text" /></td>
+        </tr>
+      </table>
+    </div>
+    <div>
+    <table id="myTable2" style="display:none">
+      <tr>
+        <th>序号</th>
+        <th>条码A</th>
+        <th>条码B</th>
+      </tr>
+    </table>
+  </div>
+
+  <script type="text/javascript">
+
+  var myTable = document.getElementById("myTable");
+  var btn = document.getElementById("btn");
+  var btn2 = document.getElementById("btn2");
+  var inputs = document.getElementsByTagName("input");
+
+  var num = 2;   // 动态添加表格起始id
+  var flag = 1;  // 恢复历史数据标志，1：未恢复； 0：已恢复，不再响应恢复
+  var myHistory = [];   // 保存历史数据数组
+
+  inputs[0].focus();
+  // Enter键监听并切换焦点事件
+  myTable.addEventListener("keyup", changeFocus, false);
+  // Enter键监听并切换焦点响应函数
+  function changeFocus(event){
+    var id = parseInt(event.target.id);  // 转换Number类型
+
+    if (event.keyCode == 13) {    // Enter键值：13
+
+      console.log(window.localStorage);
+      if (window.localStorage === undefined) {
+        alert("您的浏览器不支持恢复历史数据，请更换Chrome或其它浏览器！");
+      }
+
+      // 保存到本地 localStorage
+      window.localStorage.formHistory = "";
+      var objHistory = {};
+      objHistory[id] = inputs[id].value;
+      myHistory.push(objHistory);
+      window.localStorage.formHistory = JSON.stringify(objHistory);
+
+      id = id + 1;   // 用于动态设置每个input标签的id，Number类型
+
+      // 下一个input标签为空时执行
+      if (inputs[id] === undefined) {
+        // 原生js,给<table></table>动态添加<tr><tr>,并同时添加输入的数值
+        var trElement = document.createElement("tr");
+
+        var tdNumElement = document.createElement('td');
+        var tdNumText =document.createTextNode(num.toString());
+        tdNumElement.appendChild(tdNumText);
+
+        var inputElement1 = document.createElement("input");
+        var inputText1 = document.createTextNode(" ")
+        var tdElement1 = document.createElement("td")
+
+        inputElement1.appendChild(inputText1);
+        inputElement1.setAttribute("id",id.toString());
+        tdElement1.appendChild(inputElement1);
+
+        var inputElement2 = document.createElement("input");
+        var inputText2 = document.createTextNode(" ")
+        var tdElement2 = document.createElement("td")
+
+        inputElement2.appendChild(inputText2);
+        inputElement2.setAttribute("id", (id+1).toString());
+        tdElement2.appendChild(inputElement2);
+
+        trElement.appendChild(tdNumElement);
+        trElement.appendChild(tdElement1);
+        trElement.appendChild(tdElement2);
+
+        myTable.appendChild(trElement);
+
+        // 保存到本地 localStorage
+        myHistory.push[inputs[id-2].value];
+        myHistory.push[inputs[id-1].value];
+        window.localStorage.formHistory = JSON.stringify(myHistory);
+
+        // 下一个input获得焦点
+        inputs[id].focus();
+        num++;
+      }else {
+        inputs[id].focus();
+      }
+    }
+  }
+
+  // 导出表格按钮监听事件
+  btn.addEventListener("click", exportExcel, false);
+  // 导出表格响应函数
+  function exportExcel(event){
+    var myTable2 = document.getElementById("myTable2");
+
+    for (var i = 0, j = 1, k = 1; i < inputs.length; i+=2) {
+      // 如果输入框为空，填充一个空格
+      if(inputs[i] === undefined) {
+        var value = " ";
+      }else {
+        if (inputs[i].value === undefined) {
+          var value = " ";
+        }else {
+          var value = inputs[i].value;
+        }
+      }
+      if(inputs[j] === undefined){
+        var value2 = " ";
+      }else {
+        if (inputs[j].value === undefined) {
+          var value2 = " ";
+        }else {
+          var value2 = inputs[j].value;
+        }
+      }
+
+      // 新建一个<table>用于装载数据，因为目前使用xlxs.js库处理导出表格，
+      // 而xlxs.js库无法读取到<td><input></td>中input标签的值，后面继续研究一下这个库再优化,
+      // 以下是动态生成一个<table>，用于数据导出Excel。
+      var trElement = document.createElement('tr');
+
+      var tdNumElement = document.createElement('td');
+      var tdNumText =document.createTextNode(k);
+      tdNumElement.appendChild(tdNumText);
+
+      var tdElement1 = document.createElement('td');
+      // 输入数值太长（超12位），Excel会默认以科学计数法显示，在数值前加'，可设置以文本格式显示
+      var tdText1 =document.createTextNode('\''+value);
+      tdElement1.appendChild(tdText1);
+
+      var tdElement2 = document.createElement('td');
+      // 输入数值太长（超12位），Excel会默认以科学计数法显示，在数值前加'，可设置以文本格式显示
+      var tdText2 =document.createTextNode('\''+value2);
+      tdElement2.appendChild(tdText2);
+
+      trElement.appendChild(tdNumElement);
+      trElement.appendChild(tdElement1);
+      trElement.appendChild(tdElement2);
+
+      myTable2.appendChild(trElement);
+
+      j+=2;
+      k++;
+    }
+
+    // 将<table>数据转换为xlsx.js的对象，并下载
+    var wb = XLSX.utils.table_to_book(myTable2);
+    var wopts = {bookType: 'xlsx', bookSST: false, type: 'binary'};   // bookType：要以哪个格式下载
+    var wbout = XLSX.write(wb, wopts);
+    function s2ab(s) {
+      var buf = new ArrayBuffer(s.length);
+      var view = new Uint8Array(buf);
+      for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+      return buf;
+    }
+    // 下载数据到Excel表格
+    saveAs(new Blob([s2ab(wbout)], {type: "application/octet-stream"}), "条码扫描数据"+".xlsx");
+  }
+
+  // 恢复历史数据钮监听事件
+  btn2.addEventListener("click", resetHistory, false);
+  // 恢复历史数据响应函数
+  function resetHistory (){
+    var data = window.localStorage.formHistory;   // String类型
+    dataArr = eval(data);   // 转换为Array类型：[{}, {}, {}...]
+    var dataArrLen = dataArr.length;   // 历史数据个数
+
+    if (dataArrLen > 2) {   // 历史数据大于2个时执行
+      if (flag == 1) {    // 恢复历史数据标志，0：不执行恢复  1：执行恢复
+        for(var i = 0; i < dataArrLen/2 - 1; i++){
+          // 原生js,给<table></table>动态添加<tr><tr>,并同时添加输入的数值
+          var trElement = document.createElement("tr");
+
+          var tdNumElement = document.createElement('td');
+          var tdNumText =document.createTextNode(num.toString());
+          tdNumElement.appendChild(tdNumText);
+
+          var inputElement1 = document.createElement("input");
+          var inputText1 = document.createTextNode(" ")
+          var tdElement1 = document.createElement("td")
+
+          inputElement1.appendChild(inputText1);
+          inputElement1.setAttribute("id",(num+1).toString());
+          tdElement1.appendChild(inputElement1);
+
+          var inputElement2 = document.createElement("input");
+          var inputText2 = document.createTextNode(" ")
+          var tdElement2 = document.createElement("td")
+
+          inputElement2.appendChild(inputText2);
+          inputElement2.setAttribute("id", (num+2).toString());
+          tdElement2.appendChild(inputElement2);
+
+          trElement.appendChild(tdNumElement);
+          trElement.appendChild(tdElement1);
+          trElement.appendChild(tdElement2);
+
+          myTable.appendChild(trElement);
+
+          flag = 0;  // 数据恢复标志置0，不重复恢复
+          num++;
+        }
+      }
+      // 恢复已保存localStorage数据
+      for(var i = 0; i < dataArrLen; i++){
+        var obj = dataArr[i];   //Object类型：{key: value}
+        inputs[i].value = obj[i];
+      }
+    }
+  }
+
+  </script>
+  </body>
+  </html>
